@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Rewards Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-green-50">
+
+   <!-- Navigation -->
+<nav class="bg-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        <!-- Logo -->
+        <div class="flex items-center gap-3">
+            <div class="bg-green-500 text-white p-3 rounded-xl shadow-lg">
+                🍃
+            </div>
+            <h1 class="text-3xl font-bold text-green-700">
+                EcoCycle
+            </h1>
+        </div>
+
+        <!-- Menu -->
+        <div class="hidden md:flex gap-10 font-semibold text-gray-600">
+
+            <a href="index.html"
+                class="hover:text-green-600 transition">
+                Home
+            </a>
+
+            <a href="report.html"
+                class="hover:text-green-600 transition">
+                Report Waste
+            </a>
+
+            <a href="rewards.html"
+                class="text-green-600 border-b-2 border-green-600 pb-1">
+                Rewards
+            </a>
+
+            <a href="segregation.html"
+                class="hover:text-green-600 transition">
+                Segregation
+            </a>
+
+            <a href="notification.html"
+                class="hover:text-green-600 transition">
+                Alerts
+            </a>
+
+        </div>
+
+        <!-- Button -->
+        <a href="report.html"
+            class="bg-green-700 text-white px-6 py-3 rounded-xl shadow hover:bg-green-800 transition">
+            Report Now
+        </a>
+
+    </div>
+</nav>
+
+    <!-- Hero Section -->
+    <section class="bg-green-700 text-white py-16 text-center">
+        <h1 class="text-5xl font-bold mb-4">Eco Rewards Center</h1>
+        <p class="text-xl">
+            Earn rewards by contributing to a cleaner and greener environment.
+        </p>
+    </section>
+
+    <!-- Dashboard -->
+    <div class="max-w-6xl mx-auto p-8">
+
+        <!-- Stats -->
+        <div class="grid md:grid-cols-3 gap-6 mb-10">
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="text-lg font-semibold">Total Points</h3>
+                <p id="pointsDisplay" class="text-4xl font-bold text-green-600 mt-2">0</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="text-lg font-semibold">Current Badge</h3>
+                <p id="badgeDisplay" class="text-3xl mt-2">🥉 Bronze</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="text-lg font-semibold">Activities Completed</h3>
+                <p id="activityCount" class="text-4xl font-bold text-green-600 mt-2">0</p>
+            </div>
+
+        </div>
+
+        <!-- Progress -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+            <h2 class="text-2xl font-bold mb-4">Reward Progress</h2>
+
+            <div class="w-full bg-gray-200 rounded-full h-6">
+                <div id="progressBar"
+                    class="bg-green-600 h-6 rounded-full text-white text-center text-sm"
+                    style="width:0%">
+                    0%
+                </div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10 text-center">
+
+            <h2 class="text-2xl font-bold mb-6">Manage Reward Points</h2>
+
+            <button onclick="addPoints(10)"
+                class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 m-2">
+                +10 Points
+            </button>
+
+            <button onclick="resetPoints()"
+                class="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 m-2">
+                Reset Points
+            </button>
+
+        </div>
+
+        <!-- Reward Activities -->
+        <h2 class="text-3xl font-bold text-center mb-6">
+            Reward Activities
+        </h2>
+
+        <div class="grid md:grid-cols-4 gap-6 mb-10">
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="font-bold text-green-700">Reported Waste</h3>
+                <p class="my-3">+10 Points</p>
+                <button onclick="earnReward('Reported Waste',10)"
+                    class="bg-green-600 text-white px-4 py-2 rounded">
+                    Earn
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="font-bold text-green-700">Recycled Plastic</h3>
+                <p class="my-3">+20 Points</p>
+                <button onclick="earnReward('Recycled Plastic',20)"
+                    class="bg-green-600 text-white px-4 py-2 rounded">
+                    Earn
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="font-bold text-green-700">Community Cleanup</h3>
+                <p class="my-3">+30 Points</p>
+                <button onclick="earnReward('Community Cleanup',30)"
+                    class="bg-green-600 text-white px-4 py-2 rounded">
+                    Earn
+                </button>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                <h3 class="font-bold text-green-700">Eco Campaign</h3>
+                <p class="my-3">+40 Points</p>
+                <button onclick="earnReward('Eco Campaign',40)"
+                    class="bg-green-600 text-white px-4 py-2 rounded">
+                    Earn
+                </button>
+            </div>
+
+        </div>
+
+        <!-- History -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+
+            <h2 class="text-2xl font-bold mb-4">
+                Reward History
+            </h2>
+
+            <ul id="historyList" class="space-y-2"></ul>
+
+        </div>
+
+        <!-- Achievement Badges -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mt-10 mb-10">
+            <h2 class="text-2xl font-bold text-green-700 mb-6">
+                🏅 Achievement Badges
+            </h2>
+
+            <div class="grid md:grid-cols-5 gap-4 text-center">
+
+                <div class="bg-green-100 p-4 rounded-xl">
+                    <div class="text-5xl">🌱</div>
+                    <p class="font-semibold mt-2">First Report</p>
+                </div>
+
+                <div class="bg-green-100 p-4 rounded-xl">
+                    <div class="text-5xl">♻️</div>
+                    <p class="font-semibold mt-2">Recycling Hero</p>
+                </div>
+
+                <div class="bg-green-100 p-4 rounded-xl">
+                    <div class="text-5xl">🔋</div>
+                    <p class="font-semibold mt-2">E-Waste Expert</p>
+                </div>
+
+                <div class="bg-green-100 p-4 rounded-xl">
+                    <div class="text-5xl">🌍</div>
+                    <p class="font-semibold mt-2">Eco Warrior</p>
+                </div>
+
+                <div class="bg-green-100 p-4 rounded-xl">
+                    <div class="text-5xl">👑</div>
+                    <p class="font-semibold mt-2">Green Champion</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Daily Challenge -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+            <h2 class="text-2xl font-bold text-green-700 mb-4">
+                🎯 Daily Eco Challenge
+            </h2>
+
+            <p class="text-lg">
+                Report 1 E-Waste Item Today
+            </p>
+
+            <p class="text-green-600 font-semibold mt-2">
+                Reward: +50 Points
+            </p>
+
+            <button onclick="addPoints(50)"
+                class="mt-4 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
+                Complete Challenge
+            </button>
+        </div>
+
+        <!-- Reward Code Section -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+            <h2 class="text-2xl font-bold text-green-700 mb-4">
+                🎟️ Reward Code
+            </h2>
+
+            <div class="flex gap-4 items-center">
+                <input 
+                    type="text" 
+                    id="rewardCode" 
+                    value="ECO100" 
+                    readonly 
+                    class="flex-1 border p-3 rounded-lg bg-gray-100 font-bold text-lg">
+                
+                <button onclick="copyCode()"
+                    class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 whitespace-nowrap">
+                    📋 Copy Code
+                </button>
+            </div>
+
+            <p id="copyStatus" class="mt-2 text-green-600 font-semibold" style="display:none;">✅ Code copied to clipboard!</p>
+        </div>
+
+        <!-- Redeem Rewards -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+
+            <h2 class="text-2xl font-bold text-green-700 mb-6">
+                🎁 Redeem Rewards
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-6">
+
+                <div class="border rounded-xl p-6 text-center">
+                    <h3 class="font-bold text-xl">₹50 Voucher</h3>
+                    <p class="text-gray-500 my-3">500 Points</p>
+
+                    <button onclick="redeemReward('₹50 Voucher')"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg">
+                        Redeem
+                    </button>
+                </div>
+
+                <div class="border rounded-xl p-6 text-center">
+                    <h3 class="font-bold text-xl">₹100 Voucher</h3>
+                    <p class="text-gray-500 my-3">1000 Points</p>
+
+                    <button onclick="redeemReward('₹100 Voucher')"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg">
+                        Redeem
+                    </button>
+                </div>
+
+                <div class="border rounded-xl p-6 text-center">
+                    <h3 class="font-bold text-xl">EcoCycle T-Shirt</h3>
+                    <p class="text-gray-500 my-3">3000 Points</p>
+
+                    <button onclick="redeemReward('EcoCycle T-Shirt')"
+                        class="bg-green-600 text-white px-4 py-2 rounded-lg">
+                        Redeem
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+
+            <h2 class="text-2xl font-bold text-green-700 mb-6">
+                🏆 Eco Leaderboard
+            </h2>
+
+            <div class="space-y-3">
+
+                <div class="flex justify-between bg-yellow-100 p-4 rounded-lg">
+                    <span>🥇 Rahul</span>
+                    <span>5200 pts</span>
+                </div>
+
+                <div class="flex justify-between bg-gray-100 p-4 rounded-lg">
+                    <span>🥈 Priya</span>
+                    <span>4900 pts</span>
+                </div>
+
+                <div class="flex justify-between bg-orange-100 p-4 rounded-lg">
+                    <span>🥉 Arjun</span>
+                    <span>4300 pts</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white p-6 rounded-xl shadow-lg mb-10">
+
+            <h2 class="text-2xl font-bold text-green-700 mb-6">
+                📈 Recent Activity
+            </h2>
+
+            <div class="space-y-4">
+
+                <div class="border-l-4 border-green-500 pl-4">
+                    +250 Points — E-Waste Report Submitted
+                </div>
+
+                <div class="border-l-4 border-green-500 pl-4">
+                    +100 Points — Plastic Recycling
+                </div>
+
+                <div class="border-l-4 border-green-500 pl-4">
+                    +500 Points — Community Cleanup Drive
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white text-center p-5 mt-10">
+        <p>© 2026 EcoCycle Waste Management System</p>
+    </footer>
+
+    <script>
+        // Reward Code Copy Function
+        function copyCode() {
+            const code = document.getElementById("rewardCode").value;
+            navigator.clipboard.writeText(code);
+            
+            const statusDiv = document.getElementById("copyStatus");
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 2000);
+        }
+
+        function redeemReward(reward) {
+            alert("🎉 Reward Redeemed Successfully: " + reward);
+        }
+
+        let points = parseInt(localStorage.getItem("points")) || 0;
+        let history = JSON.parse(localStorage.getItem("history")) || [];
+
+        updateUI();
+
+        function addPoints(value) {
+            points += value;
+            saveData();
+        }
+
+        function earnReward(activity, value) {
+            points += value;
+
+            history.unshift(activity + " (+" + value + " points)");
+
+            saveData();
+        }
+
+        function resetPoints() {
+            points = 0;
+            history = [];
+
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem("points", points);
+            localStorage.setItem("history", JSON.stringify(history));
+
+            updateUI();
+        }
+
+        function updateUI() {
+
+            document.getElementById("pointsDisplay").innerText = points;
+
+                // compute badge tiers: Bronze, Silver, Gold, Eco Champion
+                let badge = "🥉 Bronze";
+                if (points >= 500) {
+                    badge = "👑 Eco Champion";
+                } else if (points >= 250) {
+                    badge = "🥇 Gold";
+                } else if (points >= 100) {
+                    badge = "🥈 Silver";
+                }
+
+                document.getElementById("badgeDisplay").innerText = badge;
+
+                document.getElementById("activityCount").innerText = history.length;
+
+                // progress toward Eco Champion (500 pts)
+                let percentage = Math.min((points / 500) * 100, 100);
+                document.getElementById("progressBar").style.width = percentage + "%";
+                document.getElementById("progressBar").innerText = Math.round(percentage) + "%";
+
+            let list = document.getElementById("historyList");
+
+            list.innerHTML = "";
+
+            history.forEach(item => {
+
+                let li = document.createElement("li");
+
+                li.className =
+                    "bg-green-100 p-3 rounded";
+
+                li.innerText = item;
+
+                list.appendChild(li);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

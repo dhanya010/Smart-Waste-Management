@@ -1,0 +1,425 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoCycle - Waste Segregation</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+    :root{ --green: #16a34a; --muted: #6b7280; }
+    .draggable{ cursor:grab; transition: transform .15s ease, box-shadow .15s ease; }
+    .draggable:hover{ transform: translateY(-4px); box-shadow: 0 6px 18px rgba(15, 23, 42, .12); }
+    .dragging{ opacity: .6; transform: scale(.98); }
+    .bin{ min-height: 220px; border-style: dashed; transition: background .18s ease, transform .12s ease; }
+    .bin.over{ transform: translateY(-6px); box-shadow: 0 10px 30px rgba(16, 185, 129, .08); }
+    .badge{ background: linear-gradient(90deg,#4ade80,#10b981); color: white; padding: .35rem .7rem; border-radius: .5rem; font-weight:700; }
+    .fade-in{ animation: fadeIn .4s ease both; }
+    @keyframes fadeIn{ from{opacity:0; transform: translateY(6px);} to{opacity:1; transform:none;} }
+    .pulse{ animation: pulse 1s ease; }
+    @keyframes pulse{ 50%{ transform: scale(1.04);} }
+</style>
+</head>
+
+<body class="bg-gradient-to-b from-emerald-50 to-white min-h-screen">
+
+<!-- HEADER (preserved) -->
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-green-100/50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+
+                        <a href="index.html" class="flex items-center space-x-3">
+                                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-600 to-emerald-400 flex items-center justify-center text-white">
+                                        🌿
+                                </div>
+                                <span class="font-extrabold text-2xl text-green-700">EcoCycle</span>
+                        </a>
+
+                        <nav class="hidden md:flex items-center space-x-8 font-semibold">
+                                <a href="index.html" class="text-slate-600 hover:text-green-600">Home</a>
+                                <a href="report.html" class="text-slate-600 hover:text-green-600">Report Waste</a>
+                                <a href="rewards.html" class="text-slate-600 hover:text-green-600">Rewards</a>
+                                <a href="segrigation.html" class="text-green-600 border-b-2 border-green-500 pb-1 font-bold">Segregation</a>
+                                <a href="notification.html" class="text-slate-600 hover:text-green-600">Alerts</a>
+                        </nav>
+
+                        <a href="report.html" class="bg-green-700 text-white px-5 py-2 rounded-xl">
+                                Report Now
+                        </a>
+                </div>
+        </div>
+</header>
+
+<!-- MAIN -->
+<main class="max-w-7xl mx-auto px-6 py-10">
+
+    <!-- HERO -->
+    <section class="grid lg:grid-cols-2 gap-10 items-center mb-12">
+        <div class="space-y-4">
+            <h1 class="text-4xl font-extrabold text-green-800">Waste Segregation Challenge</h1>
+            <p class="text-gray-600">Many people dispose waste incorrectly due to lack of awareness.</p>
+            <p class="text-gray-700 font-medium">Solution: Learn proper segregation through an interactive drag-and-drop activity.</p>
+
+            <div class="flex items-center gap-4 mt-4">
+                <div class="badge">Interactive</div>
+                <div class="badge">Educational</div>
+                <div class="badge">Rewards</div>
+            </div>
+
+            <div class="mt-6 flex gap-4 items-center">
+                <div class="bg-white p-3 rounded-xl shadow flex items-center gap-3">
+                    <strong class="text-green-700">Score</strong>
+                    <span id="score" class="text-xl font-bold text-gray-800">0</span>
+                </div>
+
+                <div class="bg-white p-3 rounded-xl shadow flex items-center gap-3">
+                    <strong class="text-green-700">Progress</strong>
+                    <div class="w-48 bg-emerald-100 rounded-full overflow-hidden">
+                        <div id="progressBar" class="h-3 bg-green-600 w-0"></div>
+                    </div>
+                </div>
+
+                <div class="ml-auto text-sm text-gray-600">Completion: <span id="percent">0%</span></div>
+            </div>
+
+        </div>
+
+        <div class="space-y-4">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-bold text-green-700 mb-3">How to play</h3>
+                <ol class="list-decimal list-inside text-gray-700 space-y-2">
+                    <li>Drag the waste cards into the correct drop zone.</li>
+                    <li>Receive instant feedback and score.</li>
+                    <li>Complete all items to earn Eco Points & a badge.</li>
+                </ol>
+            </div>
+
+            <div class="bg-amber-50 border-2 border-amber-200 rounded-2xl shadow-lg p-6">
+                <h3 class="text-lg font-bold text-amber-800 mb-3">🎁 Rewards Preview</h3>
+                <ul class="space-y-2 text-gray-700">
+                    <li>✓ <strong>+10 Points</strong> per correct classification</li>
+                    <li>✓ Earn <strong>badges</strong> after reaching milestones (100, 250, 500 pts)</li>
+                    <li>✓ <strong>Unlock</strong> Eco Champion badge at 500 points</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORKFLOW INDICATOR -->
+    <section class="mb-10 bg-white rounded-2xl shadow p-6">
+        <div class="flex items-center justify-center gap-4 md:gap-8 text-center">
+            <div class="flex flex-col items-center gap-2">
+                <div class="text-3xl">📝</div>
+                <p class="text-xs md:text-sm font-semibold text-gray-700">Report Waste</p>
+            </div>
+            <div class="text-2xl text-gray-400">→</div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="text-3xl bg-green-600 text-white p-3 rounded-full">♻️</div>
+                <p class="text-xs md:text-sm font-bold text-green-700">Segregate Waste</p>
+                <p class="text-xs text-green-600">(Current)</p>
+            </div>
+            <div class="text-2xl text-gray-400">→</div>
+            <div class="flex flex-col items-center gap-2">
+                <div class="text-3xl">🎁</div>
+                <p class="text-xs md:text-sm font-semibold text-gray-700">Earn Rewards</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- WORKFLOW INFO CARD -->
+    <section class="mb-10 bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
+        <div class="flex gap-4 items-start">
+            <div class="text-3xl flex-shrink-0">📋</div>
+            <div>
+                <h3 class="text-lg font-bold text-blue-900 mb-2">Reported Waste Workflow</h3>
+                <p class="text-gray-700">Waste reported through the Report Waste page appears here. Classify each item into the correct category (Wet Waste, Dry Waste, or E-Waste) to improve recycling efficiency and earn Eco Points.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- GAME AREA -->
+    <section class="bg-white rounded-2xl shadow p-6 mb-10">
+        <h2 class="text-2xl font-bold text-green-800 mb-4">Classify Your Reported Waste</h2>
+
+        <!-- Items -->
+        <div id="items" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="wet">🍌 Banana Peel</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="wet">🥬 Vegetable Waste</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="dry">🧴 Plastic Bottle</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="dry">📄 Newspaper</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="dry">📦 Cardboard</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="dry">🍾 Glass Bottle</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="ewaste">📱 Old Mobile</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="ewaste">🔋 Battery</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md" data-type="ewaste">🔌 Charger</div>
+            <div draggable="true" class="draggable bg-white p-4 rounded-xl shadow hover:shadow-md hidden" data-type="ewaste">💻 Laptop</div>
+        </div>
+
+        <!-- Bins -->
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="bin bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-6" data-bin="wet">
+                <h3 class="text-xl font-bold text-green-700 mb-2">🌱 Wet Waste</h3>
+                <p class="text-sm text-gray-600 mb-4">Kitchen scraps, food waste, fruit & vegetable peels — suitable for composting.</p>
+                <div class="min-h-[90px] flex flex-col gap-2" id="wet-zone"></div>
+            </div>
+
+            <div class="bin bg-amber-50 border-2 border-amber-200 rounded-2xl p-6" data-bin="dry">
+                <h3 class="text-xl font-bold text-yellow-700 mb-2">📄 Dry Waste</h3>
+                <p class="text-sm text-gray-600 mb-4">Paper, plastic, glass, cardboard — recyclable after cleaning.</p>
+                <div class="min-h-[90px] flex flex-col gap-2" id="dry-zone"></div>
+            </div>
+
+            <div class="bin bg-slate-50 border-2 border-slate-200 rounded-2xl p-6" data-bin="ewaste">
+                <h3 class="text-xl font-bold text-slate-800 mb-2">💻 E-Waste</h3>
+                <p class="text-sm text-gray-600 mb-4">Old electronics, batteries, chargers — handle separately for safe recycling.</p>
+                <div class="min-h-[90px] flex flex-col gap-2" id="ewaste-zone"></div>
+            </div>
+        </div>
+
+        <div id="message" class="hidden mt-6 text-center font-bold text-lg"></div>
+
+        <div class="mt-6 flex justify-between items-center flex-wrap gap-4">
+            <div class="text-sm text-gray-600">Items remaining: <span id="remaining">0</span></div>
+            <div class="flex gap-3">
+                <button id="reset" class="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition">Reset</button>
+                <button id="viewReported" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">View Reported Waste</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- COMPLETION CARD (HIDDEN) -->
+    <section id="completionCard" class="hidden mb-10 bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-8 text-center">
+        <div class="text-5xl mb-4">🎉</div>
+        <h2 class="text-3xl font-bold text-green-800 mb-3">Segregation Completed!</h2>
+        <p class="text-lg text-gray-700 mb-6">You successfully classified all reported waste.</p>
+        
+        <div class="bg-white rounded-xl p-6 mb-6 inline-block">
+            <h3 class="font-bold text-green-800 mb-3">Rewards Earned:</h3>
+            <div class="space-y-2 text-left">
+                <p class="text-lg">✅ <span id="pointsEarned">0</span> Eco Points awarded</p>
+                <p class="text-lg">🏅 Badge Progress Updated</p>
+            </div>
+        </div>
+        
+        <div class="flex gap-4 justify-center flex-wrap">
+            <a href="rewards.html" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition">View Rewards</a>
+            <a href="report.html" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Report More Waste</a>
+        </div>
+    </section>
+
+    <!-- Educational -->
+    <section class="grid md:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h3 class="text-xl font-bold text-green-800 mb-4">Why Waste Segregation Matters</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-bold">Reduces Pollution</h4>
+                    <p class="text-sm text-gray-600">Less landfill leakage and cleaner air and water.</p>
+                </div>
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-bold">Improves Recycling</h4>
+                    <p class="text-sm text-gray-600">Separated materials are easier to recycle effectively.</p>
+                </div>
+                <div class="p-4 border rounded-lg">
+                    <h4 class="font-bold">Protects Environment</h4>
+                    <p class="text-sm text-gray-600">Helps conserve resources and biodiversity.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h3 class="text-xl font-bold text-green-800 mb-4">Did You Know?</h3>
+            <ul class="list-disc pl-5 text-gray-700 space-y-2">
+                <li>Recycling one ton of paper saves 17 trees.</li>
+                <li>Improper battery disposal can contaminate soil and water.</li>
+                <li>Composting food waste reduces methane emissions from landfills.</li>
+            </ul>
+        </div>
+    </section>
+
+</main>
+
+<script>
+// Core game logic — load reported items from localStorage
+function getLocalStorageReports(){
+    try { return JSON.parse(localStorage.getItem('ecocycleReports') || '[]'); }
+    catch(e){ return []; }
+}
+
+let score = 0;
+let total = 0;
+let remaining = 0;
+const scoreEl = document.getElementById('score');
+const percentEl = document.getElementById('percent');
+const progressBar = document.getElementById('progressBar');
+const remainingEl = document.getElementById('remaining');
+const messageEl = document.getElementById('message');
+
+function addPointsForCorrect(value, activityText){
+    let points = Number(localStorage.getItem('points') || 0);
+    points += value;
+    localStorage.setItem('points', points);
+
+    let history = JSON.parse(localStorage.getItem('history') || '[]');
+    history.unshift(activityText + ' (+' + value + ' pts)');
+    localStorage.setItem('history', JSON.stringify(history));
+    // small visual cue on rewards nav (if present) could be added later
+}
+
+function updateUI(){
+    scoreEl.textContent = score;
+    const pct = total === 0 ? 0 : Math.round((score/total)*100);
+    percentEl.textContent = pct + '%';
+    progressBar.style.width = pct + '%';
+    remainingEl.textContent = remaining;
+}
+
+function showMessage(text, ok=true, duration=2000){
+    messageEl.className = '';
+    messageEl.classList.add('mt-6','text-center','font-bold','text-lg','fade-in','p-4','rounded-lg');
+    messageEl.innerHTML = text;
+    messageEl.style.color = 'white';
+    messageEl.style.backgroundColor = ok ? 'rgb(22 163 74)' : 'rgb(244 63 94)';
+    messageEl.classList.remove('hidden');
+    setTimeout(()=>{ messageEl.classList.add('hidden'); }, duration);
+}
+
+function mapReportedTypeToCategory(type){
+    if(!type) return 'dry';
+    const t = type.toLowerCase();
+    // explicit mapping for simplified report types
+    if(t.includes('plastic')) return 'dry';
+    if(t.includes('wet')) return 'wet';
+    if(t.includes('dry')) return 'dry';
+    // fallback heuristics
+    if(t.includes('battery') || t.includes('appliance') || t.includes('computer') || t.includes('cable') || t.includes('wire') || t.includes('mobile') || t.includes('laptop') || t.includes('mixed')) return 'ewaste';
+    if(t.includes('food') || t.includes('vegetable') || t.includes('banana')) return 'wet';
+    return 'dry';
+}
+
+// populate items from reports
+function populateReportedItems(){
+    const container = document.getElementById('items');
+    container.innerHTML = '';
+    const completionCard = document.getElementById('completionCard');
+    completionCard.classList.add('hidden');
+    const reports = getLocalStorageReports();
+    const unclassified = reports.filter(r => !r.classified);
+    if(unclassified.length === 0){
+        container.innerHTML = `
+            <div class="col-span-full py-12 px-8 text-center">
+                <div class="text-5xl mb-4">📭</div>
+                <p class="text-lg font-semibold text-gray-700 mb-4">No waste reports available.</p>
+                <p class="text-gray-600 mb-6">Please report waste first to classify it here.</p>
+                <a href="report.html" class="inline-block bg-green-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-700 transition">Go to Report Waste</a>
+            </div>`;
+        total = 0; remaining = 0; score = 0; updateUI();
+        return;
+    }
+
+    // set totals
+    total = unclassified.length;
+    remaining = total;
+    score = 0;
+
+    unclassified.forEach((rep)=>{
+        const el = document.createElement('div');
+        el.className = 'draggable bg-white p-4 rounded-xl shadow hover:shadow-md';
+        el.draggable = true;
+        const category = mapReportedTypeToCategory(rep.waste.type || rep.waste.description);
+        el.dataset.type = category; // correct answer used for validation
+        el.dataset.reportId = rep.id;
+        // show image thumbnail when available
+        let thumb = '';
+        if(rep.images && rep.images.length && rep.images[0].dataUrl){
+            thumb = `<div class="mb-2"><img src="${rep.images[0].dataUrl}" alt="thumb" class="h-20 w-full object-cover rounded-lg"></div>`;
+        }
+        const icon = category === 'ewaste' ? '📱' : (category === 'wet' ? '🍌' : '📦');
+        el.innerHTML = `${thumb}<div class="font-semibold">${icon} ${rep.waste.type || rep.waste.description}</div><div class="text-xs text-gray-500">${rep.user.name || ''} • ${new Date(rep.submittedAt).toLocaleDateString()}</div>`;
+        el.addEventListener('dragstart', onDragStart);
+        el.addEventListener('dragend', onDragEnd);
+        container.appendChild(el);
+    });
+
+    updateUI();
+}
+
+// Drag handlers
+let dragged = null;
+function onDragStart(e){ dragged = e.target; e.target.classList.add('dragging'); }
+function onDragEnd(e){ e.target.classList.remove('dragging'); }
+
+// bins
+const bins = document.querySelectorAll('.bin');
+bins.forEach(bin=>{
+    bin.addEventListener('dragover', e=>{ e.preventDefault(); bin.classList.add('over'); });
+    bin.addEventListener('dragleave', ()=>{ bin.classList.remove('over'); });
+    bin.addEventListener('drop', e=>{
+        e.preventDefault(); bin.classList.remove('over');
+        if(!dragged) return;
+        const itemType = dragged.dataset.type;
+        const binType = bin.dataset.bin;
+        const reportId = dragged.dataset.reportId;
+
+        if(itemType === binType){
+            // correct: move to bin visual, persist classification, award points
+            bin.querySelector('[id$="-zone"]').appendChild(dragged);
+            dragged.classList.add('fade-in');
+
+            // mark report as classified
+            const reports = getLocalStorageReports();
+            const idx = reports.findIndex(r=>r.id === reportId);
+            if(idx !== -1){
+                reports[idx].classified = true;
+                reports[idx].classifiedAs = binType;
+                reports[idx].classifiedAt = new Date().toISOString();
+                localStorage.setItem('ecocycleReports', JSON.stringify(reports));
+            }
+
+            score++;
+            remaining--;
+            // award points: +10 per correct classification
+            addPointsForCorrect(10, `Classified waste as ${binType}`);
+            updateUI();
+            const wasteName = dragged.textContent.trim().split('\n')[0] || 'Waste item';
+            const categoryName = binType === 'wet' ? 'Wet Waste' : (binType === 'dry' ? 'Dry Waste' : 'E-Waste');
+            showMessage(`✅ ${wasteName} correctly classified as ${categoryName}<br>🎉 +10 Eco Points awarded`, true, 3000);
+
+            if(score === total || remaining === 0){
+                showCompletionCard();
+            }
+
+        } else {
+            showMessage('❌ Wrong bin! Try again.', false);
+        }
+        dragged = null;
+    });
+});
+
+function showCompletionCard(){
+    const completionCard = document.getElementById('completionCard');
+    const pointsEarned = document.getElementById('pointsEarned');
+    pointsEarned.textContent = score * 10;
+    completionCard.classList.remove('hidden');
+    completionCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// controls
+document.getElementById('reset').addEventListener('click', ()=>{ populateReportedItems(); messageEl.classList.add('hidden'); document.querySelectorAll('.min-h-[90px] > *').forEach(n=>n.remove()); updateUI(); });
+document.getElementById('viewReported').addEventListener('click', ()=>{ populateReportedItems(); });
+
+// delegate dragstart for items container
+document.getElementById('items').addEventListener('dragstart', onDragStart);
+document.getElementById('items').addEventListener('dragend', onDragEnd);
+
+// initial setup
+populateReportedItems();
+updateUI();
+
+</script>
+
+</body>
+</html>
+```

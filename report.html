@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoCycle - Report E-Waste</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+    :root { color-scheme: light; }
+    body {
+        font-family: 'Inter', sans-serif;
+        background:
+            radial-gradient(circle at top left, rgba(16, 185, 129, 0.18), transparent 28%),
+            radial-gradient(circle at top right, rgba(132, 204, 22, 0.16), transparent 24%),
+            linear-gradient(180deg, #f7fdf8 0%, #eefaf1 100%);
+    }
+    .fade-in { animation: fadeIn 0.55s ease both; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .dropzone-active {
+        border-color: #16a34a;
+        background: rgba(34, 197, 94, 0.08);
+    }
+</style>
+</head>
+<body class="text-slate-800">
+
+<header class="sticky top-0 z-50 border-b border-emerald-100/70 bg-white/90 backdrop-blur-xl">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <div class="flex items-center gap-3">
+            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-lime-500 text-white shadow-lg shadow-emerald-200">
+                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M12 3c4 4 7 7 7 11a7 7 0 1 1-14 0c0-4 3-7 7-11Z"></path>
+                    <path d="M12 8v9"></path>
+                    <path d="M8.5 13.5c1.5 0 2.5 1 3.5 2 1-1 2-2 3.5-2"></path>
+                </svg>
+            </div>
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-600">EcoCycle</p>
+                <h1 class="text-lg font-extrabold text-slate-900">E-Waste Report</h1>
+            </div>
+        </div>
+
+        <nav class="hidden gap-8 text-sm font-semibold md:flex">
+            <a href="index.html" class="text-slate-600 transition hover:text-emerald-600">Home</a>
+            <a href="report.html" class="text-emerald-600">Report Waste</a>
+            <a href="rewards.html" class="text-slate-600 transition hover:text-emerald-600">Rewards</a>
+            <a href="segrigation.html" class="text-slate-600 transition hover:text-emerald-600">Segregation</a>
+            <a href="notification.html" class="text-slate-600 transition hover:text-emerald-600">Alerts</a>
+        </nav>
+
+        <a href="#reportForm" class="rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-200 transition hover:-translate-y-0.5 hover:bg-slate-800">Start report</a>
+    </div>
+</header>
+
+<main class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+    <section class="grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div class="fade-in space-y-6">
+            <div class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white/80 px-4 py-2 text-sm font-semibold text-emerald-700 shadow-sm">
+                <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                Fast, clean reporting for e-waste pickups
+            </div>
+            <div class="space-y-4">
+                <h2 class="max-w-3xl text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">Report e-waste with a quick, eco-focused form.</h2>
+                <p class="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">Add your details, describe the waste, upload photos, and share your location in seconds. Everything is organized for cleaner follow-up and pickup coordination.</p>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-3">
+                <div class="rounded-3xl border border-emerald-100 bg-white/85 p-4 shadow-sm">
+                    <p class="text-sm font-semibold text-emerald-700">Structured data</p>
+                    <p class="mt-2 text-sm text-slate-600">API-ready report payload with local backup.</p>
+                </div>
+                <div class="rounded-3xl border border-emerald-100 bg-white/85 p-4 shadow-sm">
+                    <p class="text-sm font-semibold text-emerald-700">Image upload</p>
+                    <p class="mt-2 text-sm text-slate-600">Drag, drop, preview, and remove before submitting.</p>
+                </div>
+                <div class="rounded-3xl border border-emerald-100 bg-white/85 p-4 shadow-sm">
+                    <p class="text-sm font-semibold text-emerald-700">GPS support</p>
+                    <p class="mt-2 text-sm text-slate-600">Use current location or enter a landmark manually.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="fade-in rounded-[2rem] border border-emerald-100 bg-white/90 p-6 shadow-[0_24px_80px_rgba(16,185,129,0.14)]">
+            <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 2 3 6.5 12 11l9-4.5Z"></path>
+                        <path d="M3 6.5V17l9 4.5 9-4.5v-10.5"></path>
+                        <path d="M12 11v10.5"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">Quick action</p>
+                    <h3 class="mt-1 text-2xl font-bold text-slate-950">Submit a pickup request</h3>
+                    <p class="mt-2 text-sm leading-6 text-slate-600">Built for mobile-first reporting with clear validation and a tidy layout.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="reportForm" class="mt-10">
+        <form id="reportFormElement" class="grid gap-6 lg:grid-cols-2">
+            <div class="space-y-6 lg:col-span-2">
+                <div class="rounded-[2rem] border border-emerald-100 bg-white/95 p-6 shadow-sm sm:p-8">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+                            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 21a8 8 0 1 0-16 0"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-950">Your details</h3>
+                            <p class="text-sm text-slate-500">Who should we contact about the report?</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 grid gap-4 md:grid-cols-2">
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Full name</span>
+                            <input id="name" name="name" type="text" required minlength="2" placeholder="Enter your name" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                            <span class="mt-2 hidden text-xs text-red-600" data-error-for="name"></span>
+                        </label>
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Phone number</span>
+                            <input id="phone" name="phone" type="tel" required placeholder="e.g. +1 555 123 4567" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                            <span class="mt-2 hidden text-xs text-red-600" data-error-for="phone"></span>
+                        </label>
+                        <label class="block md:col-span-2">
+                            <span class="mb-2 block text-sm font-semibold text-slate-700">Email address</span>
+                            <input id="email" name="email" type="email" required placeholder="you@example.com" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                            <span class="mt-2 hidden text-xs text-red-600" data-error-for="email"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <div class="rounded-[2rem] border border-emerald-100 bg-white/95 p-6 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-lime-100 text-lime-700">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M4 6h16"></path>
+                                    <path d="M7 6v12"></path>
+                                    <path d="M17 6v12"></path>
+                                    <path d="M4 18h16"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">Waste details</h3>
+                                <p class="text-sm text-slate-500">Tell us what needs to be collected.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 space-y-4">
+                            <label class="block">
+                                <span class="mb-2 block text-sm font-semibold text-slate-700">Waste type</span>
+                                <select id="wasteType" name="wasteType" required class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                                        <option value="">Select type</option>
+                                        <option>Plastic</option>
+                                        <option>Wet</option>
+                                        <option>Dry</option>
+                                    </select>
+                                <span class="mt-2 hidden text-xs text-red-600" data-error-for="wasteType"></span>
+                            </label>
+                            <label class="block">
+                                <span class="mb-2 block text-sm font-semibold text-slate-700">Quantity</span>
+                                <input id="quantity" name="quantity" type="number" min="1" step="1" required placeholder="Number of items" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100">
+                                <span class="mt-2 hidden text-xs text-red-600" data-error-for="quantity"></span>
+                            </label>
+                            <label class="block">
+                                <span class="mb-2 block text-sm font-semibold text-slate-700">Description</span>
+                                <textarea id="description" name="description" rows="5" required minlength="10" placeholder="Describe the items, condition, and any pickup details" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"></textarea>
+                                <span class="mt-2 hidden text-xs text-red-600" data-error-for="description"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="rounded-[2rem] border border-emerald-100 bg-white/95 p-6 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M4 6h16v12H4z"></path>
+                                    <circle cx="9" cy="10" r="2"></circle>
+                                    <path d="m20 16-5-5-4 4-2-2-5 5"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">Image uploads</h3>
+                                <p class="text-sm text-slate-500">Add multiple photos with drag-and-drop preview.</p>
+                            </div>
+                        </div>
+
+                        <div id="dropzone" class="mt-6 cursor-pointer rounded-[1.75rem] border-2 border-dashed border-emerald-200 bg-emerald-50/60 p-6 text-center transition hover:border-emerald-400 hover:bg-emerald-50">
+                            <input id="imageInput" name="images" type="file" accept="image/*" multiple class="hidden">
+                            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-emerald-600 shadow-sm">
+                                <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <path d="M17 8l-5-5-5 5"></path>
+                                    <path d="M12 3v12"></path>
+                                </svg>
+                            </div>
+                            <p class="mt-4 text-sm font-semibold text-slate-900">Drag and drop images here</p>
+                            <p class="mt-1 text-sm text-slate-500">or click to browse files</p>
+                            <p class="mt-3 text-xs text-slate-500">JPG, PNG, WEBP supported. Multiple uploads allowed.</p>
+                        </div>
+
+                        <div id="imagePreviewGrid" class="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3"></div>
+                        <p id="imageHelper" class="mt-3 text-sm text-slate-500">No images added yet.</p>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+                    <div class="rounded-[2rem] border border-emerald-100 bg-white/95 p-6 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+                                <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"></path>
+                                    <circle cx="12" cy="10" r="2"></circle>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold text-slate-950">Location</h3>
+                                <p class="text-sm text-slate-500">Use GPS or add a landmark manually.</p>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 space-y-4">
+                            <button type="button" id="useLocationButton" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:-translate-y-0.5 hover:bg-emerald-700">
+                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M12 2v4"></path>
+                                    <path d="M12 18v4"></path>
+                                    <path d="M4.93 4.93 7.76 7.76"></path>
+                                    <path d="M16.24 16.24 19.07 19.07"></path>
+                                    <path d="M2 12h4"></path>
+                                    <path d="M18 12h4"></path>
+                                    <path d="M4.93 19.07 7.76 16.24"></path>
+                                    <path d="M16.24 7.76 19.07 4.93"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                Use My Location
+                            </button>
+
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Latitude</p>
+                                    <p id="latitudeValue" class="mt-1 text-sm font-semibold text-slate-900">Not set</p>
+                                </div>
+                                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Longitude</p>
+                                    <p id="longitudeValue" class="mt-1 text-sm font-semibold text-slate-900">Not set</p>
+                                </div>
+                            </div>
+
+                            <label class="block">
+                                <span class="mb-2 block text-sm font-semibold text-slate-700">Manual location / landmark</span>
+                                <textarea id="manualLocation" name="manualLocation" rows="3" placeholder="Street, landmark, campus, city, or apartment details" class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:bg-white focus:ring-4 focus:ring-emerald-100"></textarea>
+                            </label>
+
+                            <div id="locationStatus" class="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">Use the button above to share precise GPS coordinates.</div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-[2rem] border border-emerald-100 bg-white/95 shadow-sm">
+                        <div class="border-b border-emerald-100 px-6 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+                                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M3 6h18"></path>
+                                        <path d="M7 6v12"></path>
+                                        <path d="M17 6v12"></path>
+                                        <path d="M3 18h18"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-slate-950">Map preview</h3>
+                                    <p class="text-sm text-slate-500">Shown after location is shared.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="mapContainer" class="h-[320px] w-full bg-[linear-gradient(135deg,#ecfdf5,#f8fafc)]">
+                            <div id="mapFallback" class="flex h-full items-center justify-center p-8 text-center text-sm text-slate-500">
+                                A live map preview appears here after you use GPS. Manual location is still saved for dispatch.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="rounded-[2rem] border border-emerald-100 bg-white/95 p-6 shadow-sm sm:p-8">
+                    <div id="successMessage" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800"></div>
+                    <div class="mt-0 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-950">Review and submit</h3>
+                            <p class="mt-1 text-sm text-slate-500">Your report will be saved in local storage in a structured format and can be sent to an API later.</p>
+                        </div>
+                        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-600 to-lime-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-200 transition hover:-translate-y-0.5 hover:from-emerald-700 hover:to-lime-700">
+                            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M22 2 11 13"></path>
+                                <path d="m22 2-7 20-4-9-9-4Z"></path>
+                            </svg>
+                            Submit report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+</main>
+
+<footer class="mt-10 border-t border-emerald-100 bg-white/80">
+    <div class="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-slate-500 sm:px-6 lg:px-8">
+        © 2026 EcoCycle Waste Management System
+    </div>
+</footer>
+
+<script>
+    const form = document.getElementById('reportFormElement');
+    const imageInput = document.getElementById('imageInput');
+    const dropzone = document.getElementById('dropzone');
+    const previewGrid = document.getElementById('imagePreviewGrid');
+    const imageHelper = document.getElementById('imageHelper');
+    const useLocationButton = document.getElementById('useLocationButton');
+    const locationStatus = document.getElementById('locationStatus');
+    const successMessage = document.getElementById('successMessage');
+    const latitudeValue = document.getElementById('latitudeValue');
+    const longitudeValue = document.getElementById('longitudeValue');
+    const mapContainer = document.getElementById('mapContainer');
+    const mapFallback = document.getElementById('mapFallback');
+
+    let selectedFiles = [];
+    let mapInstance = null;
+    let markerInstance = null;
+    let currentCoordinates = null;
+
+    function setFieldError(fieldId, message) {
+        const errorNode = document.querySelector('[data-error-for="' + fieldId + '"]');
+        const field = document.getElementById(fieldId);
+
+        if (field) {
+            field.classList.toggle('border-red-400', Boolean(message));
+            field.classList.toggle('ring-4', Boolean(message));
+            field.classList.toggle('ring-red-100', Boolean(message));
+        }
+
+        if (errorNode) {
+            errorNode.textContent = message;
+            errorNode.classList.toggle('hidden', !message);
+        }
+    }
+
+    function clearValidation() {
+        ['name', 'phone', 'email', 'wasteType', 'quantity', 'description'].forEach((fieldId) => setFieldError(fieldId, ''));
+    }
+
+    function renderPreviews() {
+        previewGrid.innerHTML = '';
+
+        if (!selectedFiles.length) {
+            imageHelper.textContent = 'No images added yet.';
+            return;
+        }
+
+        imageHelper.textContent = selectedFiles.length + ' image' + (selectedFiles.length > 1 ? 's' : '') + ' ready to upload.';
+
+        selectedFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const tile = document.createElement('div');
+                tile.className = 'group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-sm';
+                tile.innerHTML = `
+                    <img src="${event.target.result}" alt="Preview ${index + 1}" class="h-28 w-full object-cover transition duration-300 group-hover:scale-105">
+                    <button type="button" data-remove-index="${index}" class="absolute right-2 top-2 rounded-full bg-slate-900/80 px-2.5 py-1 text-xs font-semibold text-white opacity-90 transition hover:bg-red-600">Remove</button>
+                    <div class="border-t border-slate-200 px-3 py-2">
+                        <p class="truncate text-xs font-semibold text-slate-700">${file.name}</p>
+                    </div>
+                `;
+                previewGrid.appendChild(tile);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function addFiles(files) {
+        const validFiles = Array.from(files).filter((file) => file.type.startsWith('image/'));
+        if (!validFiles.length) {
+            imageHelper.textContent = 'Only image files are supported.';
+            return;
+        }
+
+        selectedFiles = selectedFiles.concat(validFiles);
+        renderPreviews();
+    }
+
+    function resetMapFallback() {
+        mapFallback.classList.remove('hidden');
+        mapFallback.textContent = 'A live map preview appears here after you use GPS. Manual location is still saved for dispatch.';
+    }
+
+    function initializeMap(latitude, longitude) {
+        if (!window.L) {
+            locationStatus.textContent = 'Location saved. Map preview is unavailable because the map library could not load.';
+            return;
+        }
+
+        mapFallback.classList.add('hidden');
+
+        if (!mapInstance) {
+            mapInstance = L.map('mapContainer', { zoomControl: true }).setView([latitude, longitude], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(mapInstance);
+            markerInstance = L.marker([latitude, longitude]).addTo(mapInstance);
+            setTimeout(() => mapInstance.invalidateSize(), 50);
+            return;
+        }
+
+        mapInstance.setView([latitude, longitude], 15);
+        if (markerInstance) {
+            markerInstance.setLatLng([latitude, longitude]);
+        } else {
+            markerInstance = L.marker([latitude, longitude]).addTo(mapInstance);
+        }
+        setTimeout(() => mapInstance.invalidateSize(), 50);
+    }
+
+    function getLocation() {
+        if (!navigator.geolocation) {
+            locationStatus.textContent = 'Geolocation is not supported by this browser.';
+            return;
+        }
+
+        locationStatus.textContent = 'Getting your current location...';
+        useLocationButton.disabled = true;
+        useLocationButton.classList.add('opacity-70');
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const accuracy = position.coords.accuracy;
+
+                currentCoordinates = { latitude, longitude, accuracy };
+                latitudeValue.textContent = latitude.toFixed(6);
+                longitudeValue.textContent = longitude.toFixed(6);
+                locationStatus.textContent = 'GPS location captured with ' + accuracy.toFixed(0) + ' meter accuracy.';
+                initializeMap(latitude, longitude);
+            },
+            (error) => {
+                const messages = {
+                    1: 'Location permission denied. You can still add a manual landmark.',
+                    2: 'Location information is unavailable right now.',
+                    3: 'Location request timed out. Please try again.'
+                };
+
+                locationStatus.textContent = messages[error.code] || 'Unable to retrieve location.';
+                resetMapFallback();
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+
+        useLocationButton.disabled = false;
+        useLocationButton.classList.remove('opacity-70');
+    }
+
+    function readFileAsDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function getLocalStorageReports() {
+        try {
+            return JSON.parse(localStorage.getItem('ecocycleReports') || '[]');
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function saveReport(reportPayload) {
+        const reports = getLocalStorageReports();
+        reports.push(reportPayload);
+        localStorage.setItem('ecocycleReports', JSON.stringify(reports));
+    }
+
+    function validateForm() {
+        clearValidation();
+        let isValid = true;
+
+        const name = document.getElementById('name');
+        const phone = document.getElementById('phone');
+        const email = document.getElementById('email');
+        const wasteType = document.getElementById('wasteType');
+        const quantity = document.getElementById('quantity');
+        const description = document.getElementById('description');
+
+        if (name.value.trim().length < 2) {
+            setFieldError('name', 'Please enter your full name.');
+            isValid = false;
+        }
+
+        if (!/^[0-9+()\-\s]{7,20}$/.test(phone.value.trim())) {
+            setFieldError('phone', 'Enter a valid phone number.');
+            isValid = false;
+        }
+
+        if (!email.checkValidity()) {
+            setFieldError('email', 'Enter a valid email address.');
+            isValid = false;
+        }
+
+        if (!wasteType.value) {
+            setFieldError('wasteType', 'Select a waste type.');
+            isValid = false;
+        }
+
+        if (!quantity.value || Number(quantity.value) < 1) {
+            setFieldError('quantity', 'Quantity must be at least 1.');
+            isValid = false;
+        }
+
+        if (description.value.trim().length < 10) {
+            setFieldError('description', 'Add a short description of the waste.');
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+        successMessage.classList.add('hidden');
+
+        if (!validateForm()) {
+            return;
+        }
+
+        const reportPayload = {
+            id: window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'report-' + Date.now(),
+            submittedAt: new Date().toISOString(),
+            user: {
+                name: document.getElementById('name').value.trim(),
+                phone: document.getElementById('phone').value.trim(),
+                email: document.getElementById('email').value.trim()
+            },
+            waste: {
+                type: document.getElementById('wasteType').value,
+                quantity: Number(document.getElementById('quantity').value),
+                description: document.getElementById('description').value.trim()
+            },
+            location: {
+                manual: document.getElementById('manualLocation').value.trim(),
+                gps: currentCoordinates
+            },
+            images: []
+        };
+
+        reportPayload.images = await Promise.all(selectedFiles.map(async (file) => ({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            dataUrl: await readFileAsDataUrl(file)
+        })));
+
+        saveReport(reportPayload);
+        console.log('API-ready report payload:', reportPayload);
+
+        successMessage.textContent = 'Your report has been submitted and saved successfully.';
+        successMessage.classList.remove('hidden');
+
+        form.reset();
+        selectedFiles = [];
+        currentCoordinates = null;
+        latitudeValue.textContent = 'Not set';
+        longitudeValue.textContent = 'Not set';
+        locationStatus.textContent = 'Use the button above to share precise GPS coordinates.';
+        renderPreviews();
+        resetMapFallback();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    dropzone.addEventListener('click', () => imageInput.click());
+
+    imageInput.addEventListener('change', (event) => {
+        addFiles(event.target.files);
+        imageInput.value = '';
+    });
+
+    dropzone.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropzone.classList.add('dropzone-active');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dropzone-active');
+    });
+
+    dropzone.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropzone.classList.remove('dropzone-active');
+        addFiles(event.dataTransfer.files);
+    });
+
+    previewGrid.addEventListener('click', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+
+        const removeIndex = target.getAttribute('data-remove-index');
+        if (removeIndex === null) {
+            return;
+        }
+
+        selectedFiles.splice(Number(removeIndex), 1);
+        renderPreviews();
+    });
+
+    useLocationButton.addEventListener('click', getLocation);
+    form.addEventListener('submit', handleSubmit);
+    renderPreviews();
+    resetMapFallback();
+</script>
+
+</body>
+</html>

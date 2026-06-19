@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoCycle - Alerts & Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50">
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-green-100/50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <a href="index.html" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-600 to-emerald-400 flex items-center justify-center text-white">🌿</div>
+                    <span class="font-extrabold text-2xl text-green-700">EcoCycle</span>
+                </a>
+
+                <nav class="hidden md:flex items-center space-x-8 font-semibold">
+                    <a href="index.html" class="text-slate-600 hover:text-green-600">Home</a>
+                    <a href="report.html" class="text-slate-600 hover:text-green-600">Report Waste</a>
+                    <a href="rewards.html" class="text-slate-600 hover:text-green-600">Rewards</a>
+                    <a href="segrigation.html" class="text-slate-600 hover:text-green-600">Segregation</a>
+                    <a href="notification.html" class="text-green-600 border-b-2 border-green-500 pb-1 font-bold">Alerts</a>
+                </nav>
+
+                <a href="report.html" class="bg-green-700 text-white px-5 py-2 rounded-xl">Report Now</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="max-w-6xl mx-auto p-8">
+        <h1 class="text-4xl font-bold text-green-700 mb-8">Alerts & Notifications</h1>
+
+        <button onclick="showNotification()" class="bg-green-600 text-white px-4 py-2 rounded-lg mb-6">🔔 Test Browser Notification</button>
+
+        <div id="notifications-grid" class="grid gap-6">
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-green-500">
+                <h2 class="font-bold text-xl text-green-700">🎉 Reward Redeemed Successfully</h2>
+                <p class="text-slate-600 mt-2">You redeemed a ₹100 Eco Voucher using 1000 reward points.</p>
+                <span class="text-sm text-slate-400">5 minutes ago</span>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-yellow-500">
+                <h2 class="font-bold text-xl text-yellow-600">🏆 Reward Points Earned</h2>
+                <p class="text-slate-600 mt-2">You earned 250 points for reporting an e-waste collection.</p>
+                <span class="text-sm text-slate-400">Today</span>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-blue-500">
+                <h2 class="font-bold text-xl text-blue-600">♻ Waste Collection Reminder</h2>
+                <p class="text-slate-600 mt-2">Dry waste collection is scheduled tomorrow at 9:00 AM.</p>
+                <span class="text-sm text-slate-400">Tomorrow</span>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-red-500">
+                <h2 class="font-bold text-xl text-red-600">🚨 Improper Waste Segregation Alert</h2>
+                <p class="text-slate-600 mt-2">Some reported waste items require correct segregation before disposal.</p>
+                <span class="text-sm text-slate-400">Recent</span>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Request browser notification permission
+        async function ensureNotificationPermission() {
+            if (!('Notification' in window)) return false;
+            if (Notification.permission === 'granted') return true;
+            if (Notification.permission !== 'denied') {
+                const perm = await Notification.requestPermission();
+                return perm === 'granted';
+            }
+            return false;
+        }
+
+        function showNotification() {
+            ensureNotificationPermission().then(ok => {
+                if (!ok) return alert('Enable browser notifications in your browser settings.');
+                new Notification('EcoCycle', { body: 'This is a test notification from EcoCycle.' });
+            });
+        }
+
+        // API helpers (hidden from UI)
+        const API_BASE = '/api';
+
+        async function fetchNotificationsFromAPI() {
+            try {
+                const res = await fetch(`${API_BASE}/notifications`, { 
+                    method: 'GET', 
+                    headers: { 'Accept': 'application/json' } 
+                });
+                const json = await res.json();
+                renderNotifications(json);
+            } catch (err) {
+                console.error('API Error:', err);
+            }
+        }
+
+        async function sendTestNotificationToAPI(title, message) {
+            try {
+                const payload = { title, message };
+                const res = await fetch(`${API_BASE}/notify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                return await res.json();
+            } catch (err) {
+                console.error('API Error:', err);
+            }
+        }
+
+        // Render notifications returned by API (expects array of {title,message,time,level})
+        function renderNotifications(list) {
+            if (!Array.isArray(list)) return;
+            const grid = document.getElementById('notifications-grid');
+            list.slice().reverse().forEach(n => {
+                const card = document.createElement('div');
+                const levelColor = (n.level === 'warning' && 'yellow-500') || (n.level === 'error' && 'red-500') || (n.level === 'info' && 'blue-500') || 'green-500';
+                card.className = `bg-white rounded-2xl shadow-lg p-6 border-l-4 border-${levelColor}`;
+                card.innerHTML = `
+                    <h2 class="font-bold text-xl text-${levelColor.replace('-500','-600')}">${n.title || 'Notification'}</h2>
+                    <p class="text-slate-600 mt-2">${n.message || ''}</p>
+                    <span class="text-sm text-slate-400">${n.time || ''}</span>
+                `;
+                grid.prepend(card);
+            });
+        }
+
+        // Load API notifications on page load
+        window.addEventListener('load', fetchNotificationsFromAPI);
+    </script>
+</body>
+</html>
